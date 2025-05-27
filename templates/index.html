@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Mental Health Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .auth-section, .chat-section {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .chat-section {
+            display: none;
+        }
+        .chat-box {
+            border: 1px solid #ccc;
+            height: 300px;
+            overflow-y: scroll;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+        }
+        .chat-box p {
+            margin: 5px 0;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>MINDMATE</h1>
+
+    <div class="auth-section" id="authSection">
+        <h2>Welcome! Please provide your details to begin.</h2>
+        <input type="text" id="name" placeholder="Your Name" required>
+        <input type="email" id="email" placeholder="Your Email" required>
+        <input type="tel" id="phone" placeholder="Your Phone Number" required>
+        <button onclick="authenticate()">Start Chat</button>
+    </div>
+
+    <div class="chat-section" id="chatSection">
+        <h2>Chat with your friend</h2>
+        <div class="chat-box" id="chatBox"></div>
+        <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="if(event.keyCode==13) sendMessage()">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        let userDetails = {};
+        let chatHistory = '';
+
+        async function authenticate() {
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+
+            if (!name || !email || !phone) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            userDetails = { name, email, phone };
+
+            try {
+                const response = await fetch('/api/authenticate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userDetails)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('authSection').style.display = 'none';
+                    document.getElementById('chatSection').style.display = 'block';
+
+                    const chatBox = document.getElementById('chatBox');
+                    chatBox.innerHTML += `<p><strong>System:</strong> ${data.message}</p>`;
+
+                    if (!data.is_new_user && data.last_session_question) {
+                        chatBox.innerHTML += `<p><strong>Psychiatrist:</strong> ${data.last_session_question}</p>`;
+                        chatHistory += `Psychiatrist: ${data.last_session_question}\n`;
+                    }
+                } else {
+                    console.error('Authentication failed:', data);
+                    alert(data.error || 'Authentication failed. Please check the console for details.');
+                }
+            } catch (error) {
+                console.error('Error during authentication:', error);
+                alert('An error occurred while connecting to the server. Please check the console for details.');
+            }
+        }
+
+        async function sendMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            const chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML += `<p><strong>User:</strong> ${message}</p>`;
+            chatInput.value = '';
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message,
+                        name: userDetails.name,
+                        email: userDetails.email,
+                        phone: userDetails.phone,
+                        chat_history: chatHistory
+                    })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    chatBox.innerHTML += `<p><strong>Psychiatrist:</strong> ${data.response}</p>`;
+                    chatHistory = data.chat_history;
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                } else {
+                    chatBox.innerHTML += `<p><strong>Error:</strong> ${data.error || 'Failed to get response.'}</p>`;
+                }
+            } catch (error) {
+                console.error('Error during chat:', error);
+                chatBox.innerHTML += `<p><strong>Error:</strong> Failed to connect to the server. Please check the console for details.</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

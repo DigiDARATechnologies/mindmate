@@ -1,0 +1,8 @@
+```text
+Flask==2.3.2
+qdrant-client==1.7.0
+langchain==0.1.14
+langchain-ollama==0.1.1
+ollama==0.1.9
+uuid
+```
