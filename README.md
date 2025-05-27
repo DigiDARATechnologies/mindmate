@@ -27,7 +27,7 @@ This project is a web-based AI chatbot designed to support students facing emoti
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/student-mental-health-chatbot.git
+git clone https://github.com/DigiDARATechnologies/mindmate.git
 cd student-mental-health-chatbot
 ```
 
@@ -45,19 +45,19 @@ Guide for install Docker:
 Windows 10/11 Pro, Enterprise, or Education (with WSL2 enabled)
 
 ## Steps
-    1.Download Docker Desktop
+ ##   1.Download Docker Desktop
         Go to: https://www.docker.com/products/docker-desktop/
         Click “Download for Windows”
-    2.Install Docker Desktop
+  ##  2.Install Docker Desktop
         Run the installer
         Enable WSL 2 if prompted
         Restart your computer if required
-    3.Verify Installation
+  ##  3.Verify Installation
         Open PowerShell or CMD:
         ```bash
         docker --version
         ```
-    4.After install docker
+   ## 4.After install docker
         Go to Windows search bar type docker and press enter.
         After press enter docker application is open.
         Next go for powershell to search in windows search bar
@@ -73,18 +73,33 @@ docker run -d -p 6333:6333 -v qdrant_storage:/qdrant/storage qdrant/qdrant
 docker ps
 ```
 ### 5. Install ollama 
-    step 1: link
+    - step 1: link
+    ```bash
         https://ollama.com/download/windows.click
-    step 2: Verify Installation
+```
+    - step 2: Verify Installation
         Open a terminal or command prompt.
-        Run ollama --version to confirm Ollama is installed correctly. 
-    step 3: In your terminal, run
+        Run
+```bash
+        ollama --version
+        ```
+        to confirm Ollama is installed correctly. 
+    - step 3: In your terminal, run
+    ```bash
         ollama pull nomic-embed-text
         ollama list
-    step 4: Download llama3.2-vision:11b
+        ```
+    - step 4: Download llama3.2-vision:11b
         In your terminal, run:
+        ```bash
         ollama pull llama3.2-vision:11b
         ollama list
+        ```
+        [OR]
+    - step 5: Download mistral:latest("low system configuration")
+        ```bash
+        ollama pull mistral:latest
+        ```
     
 
 ### 5. Run the app
